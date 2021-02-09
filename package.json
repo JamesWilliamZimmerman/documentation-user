@@ -1,0 +1,14 @@
+{
+  "name": "bottesting",
+  "version": "1.0.0",
+  "description": "Testing slack bots",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/bolt": "^2.5.0"
+  }
+}

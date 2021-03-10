@@ -118,7 +118,46 @@ app.action('button_deny', async ({ body, ack, say, client }) => {
 });
 
 const ws = new WorkflowStep('onboard_user', {
-    edit: async ({ ack, step, configuration }) => { },
+    edit: async ({ ack, step, configuration }) => {
+        await ack();
+
+        const blocks = [
+            {
+                type: 'input',
+                block_id: 'step_name_input',
+                element: {
+                    type: 'plain_text_input',
+                    action_id: 'name',
+                    placeholder: {
+                        type: 'plain_text',
+                        text: 'Add a step name',
+                    },
+                },
+                label: {
+                    type: 'plain_text',
+                    text: 'Step name',
+                },
+            },
+            {
+                type: 'input',
+                block_id: 'step_description_input',
+                element: {
+                    type: 'plain_text_input',
+                    action_id: 'description',
+                    placeholder: {
+                        type: 'plain_text',
+                        text: 'Add a step description',
+                    },
+                },
+                label: {
+                    type: 'plain_text',
+                    text: 'Step description',
+                },
+            },
+        ];
+
+        await configure({ blocks });
+    },
     save: async ({ ack, step, update }) => { },
     execute: async ({ step, complete, fail }) => { }
 });

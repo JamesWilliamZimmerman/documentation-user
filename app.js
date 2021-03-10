@@ -1,4 +1,4 @@
-const { App } = require('@slack/bolt');
+const { App, WorkflowStep } = require('@slack/bolt');
 
 // Initializes your app with your bot token and signing secret
 const app = new App({
@@ -10,24 +10,76 @@ const app = new App({
 app.message('hello', async ({ message, say }) => {
     // say() sends a message to the channel where the event was triggered
     await say({
-        blocks: [
+        "blocks": [
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": `Hey there <@${message.user}>!`
+                    "text": "You have a new request:\nCreate accounts for new user: <user>"
+                }
+            },
+            {
+                "type": "section",
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "*Name:*\nFirst Last"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": "*When:*\n<Date>"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": "*Start Date:*\n<Date>"
+                    }
+                ]
+            },
+            {
+                "type": "actions",
+                "elements": [
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": true,
+                            "text": "Approve"
+                        },
+                        "style": "primary",
+                        "value": "button_approve",
+                        "action_id": "button_approve"
+                    },
+                    {
+                        "type": "button",
+                        "text": {
+                            "type": "plain_text",
+                            "emoji": true,
+                            "text": "Deny"
+                        },
+                        "style": "danger",
+                        "value": "button_deny",
+                        "action_id": "button_deny"
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "Click here to create new accounts individually instead of in a batch."
                 },
                 "accessory": {
                     "type": "button",
                     "text": {
                         "type": "plain_text",
-                        "text": "Click Me"
+                        "text": "Create Manually",
+                        "emoji": true
                     },
-                    "action_id": "button_click"
+                    "value": "manual",
+                    "action_id": "button-create-manually"
                 }
             }
-        ],
-        text: `Hey there <@${message.user}>!`
+        ]
     });
 });
 
@@ -53,21 +105,25 @@ app.message('invite', async ({ message, say, client }) => {
     });
 });
 
-app.action('button_click', async ({ body, ack, say, client }) => {
+app.action('button_approve', async ({ body, ack, say, client }) => {
     // Acknowledge the action
     await ack();
-    await say(`<@${body.user.id}> clicked the button`);
-    try {
-        const result = await client.conversations.invite({
-            channel: message.channel,
-            post_at: whenSeptemberEnds,
-            text: 'Summer has come and passed'
-        });
-    }
-    catch (error) {
-        console.error(error);
-    }
+    await say(`Creating all user accounts now.`);
 });
+
+app.action('button_deny', async ({ body, ack, say, client }) => {
+    // Acknowledge the action
+    await ack();
+    await say(`User account creation process has been halted. To restart the process type createUserAccounts @<user>`);
+});
+
+const ws = new WorkflowStep('onboard_user', {
+    edit: async ({ ack, step, configuration }) => { },
+    save: async ({ ack, step, update }) => { },
+    execute: async ({ step, complete, fail }) => { }
+});
+
+app.step(ws);
 
 (async () => {
     // Start your app
